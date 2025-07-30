@@ -264,57 +264,46 @@ def create_qa_chain(openai_api_key, cohere_api_key):
         retriever = EnhancedRetriever(
             vectorstore=vectorstore,
             reranker=reranker,
-            base_initial_k=15,  # Matching notebook
-            base_final_k=8,     # Matching notebook
-            max_context_tokens=11000  # Matching notebook
+            base_initial_k=15,
+            base_final_k=8,
+            max_context_tokens=11000
         )
         
-        # Create prompt template with focus on specific information
-        prompt_template = """You are a precise and direct information system for the University of Chicago's MS in Applied Data Science program.
+        # Create QA chain with specific prompt
+        prompt_template = """You are a precise information system for the University of Chicago's MS in Applied Data Science program.
 
 CORE REQUIREMENTS:
 1. ALWAYS start with "Based on the program materials..."
-2. For questions about specific items (scholarships, costs, deadlines), ONLY list those items
-3. Do not add any explanatory text unless specifically asked
-4. If you find specific names or numbers, provide ONLY those
-5. If you cannot find specific names or numbers, say "Based on the program materials, I don't have enough information to answer this question"
-
-RESPONSE FORMAT:
-- For lists: "Based on the program materials, [item type] are: [item1], [item2]"
-- For numbers: "Based on the program materials, [item] is [number]"
-- For yes/no: "Based on the program materials, yes/no"
-- If no specific items found: "Based on the program materials, I don't have enough information"
-
-RESPONSE RULES:
-- NEVER provide general descriptions when specific items exist
-- NEVER add context or explanations
-- NEVER speculate or make assumptions
-- NEVER combine information from multiple contexts
-- NEVER use hedging language (might, may, could)
+2. For scholarship questions:
+   - ONLY list the specific scholarship names
+   - DO NOT include general categories like "merit scholarships"
+   - Format: "Based on the program materials, available scholarships are: [Scholarship1], [Scholarship2]"
+3. For all other questions:
+   - Be direct and specific
+   - List items when possible
+   - Avoid unnecessary context
+4. If you cannot find specific information, say "Based on the program materials, I don't have enough information to answer this question"
 
 Context: {context}
-
 Question: {question}
 
-Complete and accurate answer:"""
+Answer:"""
 
-        PROMPT = PromptTemplate(
+        prompt = PromptTemplate(
             template=prompt_template,
             input_variables=["context", "question"]
         )
 
-        # Create QA chain with exact notebook parameters
-        llm = ChatOpenAI(
-            model=CHAT_MODEL,      # Using config variable
-            temperature=TEMPERATURE # Using config variable
-        )
-        
+        # Create chain
         qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
+            llm=ChatOpenAI(
+                model=CHAT_MODEL,
+                temperature=TEMPERATURE
+            ),
             chain_type="stuff",
             retriever=retriever,
-            chain_type_kwargs={"prompt": PROMPT},
-            return_source_documents=True
+            return_source_documents=True,
+            chain_type_kwargs={"prompt": prompt}
         )
         
         return qa_chain, validator, reranker
