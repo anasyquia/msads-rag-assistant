@@ -382,7 +382,6 @@ if openai_api_key and cohere_api_key:
                 st.markdown(f"**Status:** {validation_status}")
                 
                 with st.expander("View Validation Details"):
-                    st.markdown("- **Source Attribution:** " + ("✅" if validation_result["attribution"]["has_attribution"] else "❌"))
                     st.markdown("- **Hallucination Risk:** " + ("✅ Low" if validation_result["hallucination_risk"]["is_safe"] else "❌ High"))
                     if validation_result["hallucination_risk"]["phrases"]:
                         st.markdown("  - Risky phrases: " + ", ".join(validation_result["hallucination_risk"]["phrases"]))
