@@ -274,20 +274,31 @@ def create_qa_chain(openai_api_key, cohere_api_key):
 
 CORE REQUIREMENTS:
 1. ALWAYS start with "Based on the program materials..."
-2. For scholarship questions:
-   - ONLY list the specific scholarship names
-   - DO NOT include general categories like "merit scholarships"
-   - Format: "Based on the program materials, available scholarships are: [Scholarship1], [Scholarship2]"
-3. For all other questions:
-   - Be direct and specific
-   - List items when possible
-   - Avoid unnecessary context
-4. If you cannot find specific information, say "Based on the program materials, I don't have enough information to answer this question"
+2. Include specific details from the context (dates, costs, contact info, URLs) as available
+3. Be specific about program types (Online vs In-Person) when relevant
+4. Use exact quotes and numbers from the context
+5. If information seems incomplete, state what you found and note limitations
+6. If you cannot find specific information in the context, say "Based on the program materials, I don't have enough information to answer this question" or "Based on the program materials, this information is not available."
+
+RESPONSE RULES:
+- NEVER speculate or make assumptions beyond the provided context
+- NEVER use approximations unless they are directly quoted from the context
+- NEVER use hedging language (might, maybe, probably) unless directly quoted
+- If asked about visa sponsorship, be explicit about which programs are eligible
+- If asked about appointments/advising, mention specific contact methods available
+- If the context doesn't contain a clear answer, acknowledge the limitation and state what information IS available
+
+ACCURACY REQUIREMENTS:
+- Only state facts that are explicitly present in the context
+- If information is ambiguous or unclear, say so explicitly
+- If you need to say "I don't know" or "This information is not available", that is BETTER than guessing
+- Include relevant quotes when possible to support your answer
 
 Context: {context}
+
 Question: {question}
 
-Answer:"""
+Complete and accurate answer:"""
 
         prompt = PromptTemplate(
             template=prompt_template,
