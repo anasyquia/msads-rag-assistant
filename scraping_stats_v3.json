@@ -1,0 +1,22 @@
+{
+  "total_documents": 10,
+  "total_words": 23444,
+  "average_words_per_doc": 2344.4,
+  "urls_scraped": [
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/our-students",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/tuition-fees-aid",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/online-program",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/in-person-program",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/events-deadlines",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/capstone-projects",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/faqs",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/online-program/%20",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/instructors-staff",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science/how-to-apply",
+    "https://datascience.uchicago.edu/education/masters-programs/ms-in-applied-data-science"
+  ],
+  "content_types": [
+    "text/html; charset=UTF-8"
+  ],
+  "timestamp": "2025-07-30 14:03:21"
+}
