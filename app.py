@@ -6,7 +6,11 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
+from langchain.schema import BaseRetriever
+from pydantic import Field
 import cohere
+from typing import List, Any
+from langchain.document_loaders import Document
 
 # Page config
 st.set_page_config(
@@ -156,6 +160,57 @@ class DocumentReranker:
                 else:
                     return documents[:top_k]
 
+# Enhanced Retriever Class
+class EnhancedRetriever(BaseRetriever):
+    """Retriever with dynamic sizing based on query complexity"""
+    
+    vectorstore: Any = Field()
+    reranker: DocumentReranker = Field()
+    base_initial_k: int = Field(default=15)
+    base_final_k: int = Field(default=8)
+    max_context_tokens: int = Field(default=11000)
+    
+    def _estimate_tokens(self, text: str) -> int:
+        """Quick token estimation"""
+        return len(text.split()) * 1.3
+    
+    def _adjust_retrieval_size(self, query: str) -> tuple[int, int]:
+        """Dynamically adjust retrieval based on query"""
+        query_lower = query.lower()
+        
+        # Increase retrieval for complex queries
+        if any(word in query_lower for word in 
+               ['compare', 'difference', 'vs', 'versus', 'both', 'all']):
+            return self.base_initial_k + 5, self.base_final_k + 2
+        
+        # Standard retrieval for simple queries
+        return self.base_initial_k, self.base_final_k
+    
+    def _get_relevant_documents(self, query: str) -> List[Document]:
+        """Enhanced retrieval with token-aware sizing"""
+        
+        # Adjust retrieval size based on query
+        initial_k, final_k = self._adjust_retrieval_size(query)
+        
+        # Step 1: Initial retrieval
+        initial_docs = self.vectorstore.similarity_search(query, k=initial_k)
+        
+        # Step 2: Rerank
+        reranked_docs = self.reranker.rerank_documents(query, initial_docs, top_k=final_k)
+        
+        # Step 3: Token-aware final selection
+        selected_docs = []
+        total_tokens = 0
+        
+        for doc in reranked_docs:
+            doc_tokens = self._estimate_tokens(doc.page_content)
+            if total_tokens + doc_tokens > self.max_context_tokens:
+                break
+            selected_docs.append(doc)
+            total_tokens += doc_tokens
+        
+        return selected_docs
+
 # Sidebar for API keys
 with st.sidebar:
     st.header("API Keys")
@@ -194,6 +249,15 @@ def create_qa_chain(openai_api_key, cohere_api_key):
         validator = ResponseValidator()
         reranker = DocumentReranker(cohere_api_key)
         
+        # Create enhanced retriever
+        retriever = EnhancedRetriever(
+            vectorstore=vectorstore,
+            reranker=reranker,
+            base_initial_k=15,
+            base_final_k=8,
+            max_context_tokens=11000
+        )
+        
         # Create prompt template
         prompt_template = """You are a precise information system for the University of Chicago's MS in Applied Data Science program.
 
@@ -231,7 +295,7 @@ Complete and accurate answer:"""
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
-            retriever=vectorstore.as_retriever(search_kwargs={"k": 15}),  # Get more docs for reranking
+            retriever=retriever,  # Use enhanced retriever
             chain_type_kwargs={"prompt": PROMPT},
             return_source_documents=True
         )
