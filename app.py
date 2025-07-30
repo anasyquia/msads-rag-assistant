@@ -218,31 +218,6 @@ class EnhancedRetriever(BaseRetriever):
         
         return selected_docs
 
-# Sidebar for API keys
-with st.sidebar:
-    st.header("API Keys")
-    openai_api_key = st.text_input("OpenAI API Key", type="password")
-    cohere_api_key = st.text_input("Cohere API Key", type="password")
-    
-    st.markdown("---")
-    st.markdown("""
-    ### About
-    This app uses RAG (Retrieval-Augmented Generation) to provide accurate answers about the MS-ADS program by:
-    1. Loading pre-scraped program data
-    2. Finding relevant context using FAISS
-    3. Reranking results with Cohere
-    4. Generating accurate answers with GPT
-    5. Validating responses for accuracy
-    """)
-
-# Initialize session state
-if 'qa_chain' not in st.session_state:
-    st.session_state.qa_chain = None
-if 'validator' not in st.session_state:
-    st.session_state.validator = None
-if 'reranker' not in st.session_state:
-    st.session_state.reranker = None
-
 # Function to create QA chain
 def create_qa_chain(openai_api_key, cohere_api_key):
     try:
@@ -330,6 +305,47 @@ Complete and accurate answer:"""
         st.error(f"Error creating QA chain: {str(e)}")
         return None, None, None
 
+# Initialize session state
+if 'qa_chain' not in st.session_state:
+    st.session_state.qa_chain = None
+if 'validator' not in st.session_state:
+    st.session_state.validator = None
+if 'reranker' not in st.session_state:
+    st.session_state.reranker = None
+
+# Clear session state when API keys change
+def clear_session_state():
+    st.session_state.qa_chain = None
+    st.session_state.validator = None
+    st.session_state.reranker = None
+
+# Sidebar for API keys
+with st.sidebar:
+    st.header("API Keys")
+    # Store previous values
+    prev_openai_key = st.session_state.get('prev_openai_key', '')
+    prev_cohere_key = st.session_state.get('prev_cohere_key', '')
+    
+    openai_api_key = st.text_input("OpenAI API Key", type="password")
+    cohere_api_key = st.text_input("Cohere API Key", type="password")
+    
+    # Check if keys changed
+    if openai_api_key != prev_openai_key or cohere_api_key != prev_cohere_key:
+        clear_session_state()
+        st.session_state.prev_openai_key = openai_api_key
+        st.session_state.prev_cohere_key = cohere_api_key
+
+    st.markdown("---")
+    st.markdown("""
+    ### About
+    This app uses RAG (Retrieval-Augmented Generation) to provide accurate answers about the MS-ADS program by:
+    1. Loading pre-scraped program data
+    2. Finding relevant context using FAISS
+    3. Reranking results with Cohere
+    4. Generating accurate answers with GPT
+    5. Validating responses for accuracy
+    """)
+
 # Main interface
 if openai_api_key and cohere_api_key:
     if not st.session_state.qa_chain:
@@ -344,10 +360,10 @@ if openai_api_key and cohere_api_key:
     # Question input
     question = st.text_input("Ask a question about the MS-ADS program:", placeholder="e.g., What is the tuition cost?")
 
-    if question and st.session_state.qa_chain:
+    if question:  # Remove the qa_chain check since we know it exists
         with st.spinner("Finding answer..."):
             try:
-                # Get initial results
+                # Get answer
                 result = st.session_state.qa_chain({"query": question})
                 answer = result['result']
                 source_docs = result['source_documents']
