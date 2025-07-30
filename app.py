@@ -6,11 +6,10 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-from langchain.schema import BaseRetriever
+from langchain.schema import BaseRetriever, Document
 from pydantic import Field
 import cohere
 from typing import List, Any
-from langchain.document_loaders import Document
 
 # Configuration Parameters (matching original notebook)
 CHUNK_SIZE = 600  # Size of text chunks
