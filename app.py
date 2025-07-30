@@ -264,8 +264,8 @@ def create_qa_chain(openai_api_key, cohere_api_key):
         retriever = EnhancedRetriever(
             vectorstore=vectorstore,
             reranker=reranker,
-            base_initial_k=10,  # Initial k should be 2x final_k
-            base_final_k=5,     # Match notebook's RETRIEVAL_K
+            base_initial_k=15,  # Initial k should be ~2x final_k
+            base_final_k=8,     # Back to 8 documents for better coverage
             max_context_tokens=11000
         )
         
@@ -293,7 +293,8 @@ RESPONSE FORMAT EXAMPLES:
 - For deadlines: "Based on the program materials, the deadline is [specific date]"
 - For costs: "Based on the program materials, the cost is [specific amount]"
 
-ACCURACY REQUIREMENTS:
+ACCURAC
+Y REQUIREMENTS:
 - Only state facts that are explicitly present in the context
 - If information is ambiguous or unclear, say so explicitly
 - If you need to say "I don't know" or "This information is not available", that is BETTER than guessing
