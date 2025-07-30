@@ -376,19 +376,6 @@ if openai_api_key and cohere_api_key:
                 st.markdown("### Answer:")
                 st.write(f"<div style='font-family: monospace; white-space: pre-wrap; padding: 10px;'>{answer}</div>", unsafe_allow_html=True)
 
-                # Display validation results
-                st.markdown("### Response Validation:")
-                validation_status = "✅ VALID" if validation_result["is_valid"] else "❌ INVALID"
-                st.markdown(f"**Status:** {validation_status}")
-                
-                with st.expander("View Validation Details"):
-                    st.markdown("- **Hallucination Risk:** " + ("✅ Low" if validation_result["hallucination_risk"]["is_safe"] else "❌ High"))
-                    if validation_result["hallucination_risk"]["phrases"]:
-                        st.markdown("  - Risky phrases: " + ", ".join(validation_result["hallucination_risk"]["phrases"]))
-                    st.markdown("- **Uncertainty Level:** " + ("✅ Low" if validation_result["uncertainty"]["is_confident"] else "❌ High"))
-                    st.markdown(f"- **Length:** {validation_result['length']['word_count']} words")
-                    st.markdown("- **Context Usage:** " + ("✅ Good" if validation_result["context_usage"]["is_grounded"] else "❌ Poor"))
-
                 # Display sources
                 st.markdown("### Sources:")
                 for i, doc in enumerate(reranked_docs, 1):
