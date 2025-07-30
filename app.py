@@ -12,6 +12,14 @@ import cohere
 from typing import List, Any
 from langchain.document_loaders import Document
 
+# Configuration Parameters (matching original notebook)
+CHUNK_SIZE = 600  # Size of text chunks
+CHUNK_OVERLAP = 100  # Overlap between chunks
+RETRIEVAL_K = 5  # Number of chunks to retrieve
+TEMPERATURE = 0.0  # Temperature for LLM
+EMBEDDING_MODEL = "text-embedding-3-small"
+CHAT_MODEL = "gpt-3.5-turbo"
+
 # Page config
 st.set_page_config(
     page_title="UChicago MS-ADS Q&A",
@@ -166,9 +174,9 @@ class EnhancedRetriever(BaseRetriever):
     
     vectorstore: Any = Field()
     reranker: DocumentReranker = Field()
-    base_initial_k: int = Field(default=15)
-    base_final_k: int = Field(default=8)
-    max_context_tokens: int = Field(default=11000)
+    base_initial_k: int = Field(default=15)  # Matching notebook
+    base_final_k: int = Field(default=8)     # Matching notebook
+    max_context_tokens: int = Field(default=11000)  # Matching notebook
     
     def _estimate_tokens(self, text: str) -> int:
         """Quick token estimation"""
@@ -244,18 +252,18 @@ def create_qa_chain(openai_api_key, cohere_api_key):
         os.environ["COHERE_API_KEY"] = cohere_api_key
         
         # Initialize components
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)  # Using config variable
         vectorstore = FAISS.load_local("./faiss_index", embeddings)
         validator = ResponseValidator()
-        reranker = DocumentReranker(cohere_api_key)
+        reranker = DocumentReranker()
         
-        # Create enhanced retriever
+        # Create enhanced retriever with exact notebook parameters
         retriever = EnhancedRetriever(
             vectorstore=vectorstore,
             reranker=reranker,
-            base_initial_k=15,
-            base_final_k=8,
-            max_context_tokens=11000
+            base_initial_k=15,  # Matching notebook
+            base_final_k=8,     # Matching notebook
+            max_context_tokens=11000  # Matching notebook
         )
         
         # Create prompt template
@@ -286,16 +294,16 @@ Complete and accurate answer:"""
             input_variables=["context", "question"]
         )
 
-        # Create QA chain
+        # Create QA chain with exact notebook parameters
         llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
-            temperature=0.0
+            model=CHAT_MODEL,      # Using config variable
+            temperature=TEMPERATURE # Using config variable
         )
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
-            retriever=retriever,  # Use enhanced retriever
+            retriever=retriever,
             chain_type_kwargs={"prompt": PROMPT},
             return_source_documents=True
         )
