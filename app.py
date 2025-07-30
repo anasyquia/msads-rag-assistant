@@ -251,8 +251,12 @@ def create_qa_chain(openai_api_key, cohere_api_key):
         os.environ["COHERE_API_KEY"] = cohere_api_key
         
         # Initialize components
-        embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)  # Using config variable
-        vectorstore = FAISS.load_local("./faiss_index", embeddings)
+        embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+        vectorstore = FAISS.load_local(
+            "./faiss_index",
+            embeddings,
+            allow_dangerous_deserialization=True  # Allow since this is our own trusted index
+        )
         validator = ResponseValidator()
         reranker = DocumentReranker()
         
