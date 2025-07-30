@@ -349,7 +349,7 @@ if openai_api_key and cohere_api_key:
 
                 # Display answer
                 st.markdown("### Answer:")
-                st.markdown(answer)
+                st.write(f"<div style='font-family: monospace; white-space: pre-wrap; padding: 10px;'>{answer}</div>", unsafe_allow_html=True)
 
                 # Display validation results
                 st.markdown("### Response Validation:")
@@ -372,14 +372,10 @@ if openai_api_key and cohere_api_key:
                         st.markdown(f"**Title:** {doc.metadata.get('title', 'Unknown')}")
                         st.markdown(f"**Source:** {doc.metadata.get('source', 'Unknown')}")
                         st.markdown("**Content Preview:**")
-                        st.markdown(doc.page_content[:300] + "..." if len(doc.page_content) > 300 else doc.page_content)
+                        st.write(f"<div style='font-family: monospace; white-space: pre-wrap; padding: 10px;'>{doc.page_content[:300] + '...' if len(doc.page_content) > 300 else doc.page_content}</div>", unsafe_allow_html=True)
 
             except Exception as e:
                 st.error(f"Error generating answer: {str(e)}")
 
 else:
-    st.warning("Please enter your OpenAI and Cohere API keys in the sidebar to start.")
-
-# Footer
-st.markdown("---")
-st.markdown("Made with ❤️ using Streamlit, LangChain, and FAISS") 
+    st.warning("Please enter your OpenAI and Cohere API keys in the sidebar to start.") 
