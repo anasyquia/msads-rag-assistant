@@ -334,7 +334,6 @@ with st.sidebar:
     2. Finding relevant context using FAISS
     3. Reranking results with Cohere
     4. Generating accurate answers with GPT
-    5. Validating responses for accuracy
     """)
 
 # Main interface
