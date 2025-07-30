@@ -38,12 +38,7 @@ class ResponseValidator:
     """Enhanced response validation with multiple checks"""
     
     def __init__(self):
-        self.required_prefixes = [
-            "Based on the program materials",
-            "According to the program materials",
-            "The program materials indicate",
-            "The program materials state"
-        ]
+        """Enhanced response validation with multiple checks"""
         
         self.hallucination_phrases = [
             "typically", "usually", "generally", "often",
@@ -59,18 +54,14 @@ class ResponseValidator:
     def validate_response(self, response: str, context: str = None) -> dict:
         """Run all validation checks on a response"""
         try:
-            # Source attribution
-            has_attribution = any(response.lower().startswith(prefix.lower()) 
-                                for prefix in self.required_prefixes)
-            
             # Hallucination check
             found_hallucination_phrases = [phrase for phrase in self.hallucination_phrases 
-                                         if phrase in response.lower()]
+                                       if phrase in response.lower()]
             hallucination_risk = len(found_hallucination_phrases) / len(self.hallucination_phrases)
             
             # Uncertainty check
             found_uncertainty_phrases = [phrase for phrase in self.uncertainty_phrases 
-                                       if phrase in response.lower()]
+                                     if phrase in response.lower()]
             uncertainty_score = len(found_uncertainty_phrases) / len(self.uncertainty_phrases)
             
             # Length check
@@ -83,14 +74,13 @@ class ResponseValidator:
             if context:
                 response_words = response.lower().split()
                 response_phrases = [' '.join(response_words[i:i+3]) 
-                                  for i in range(len(response_words)-2)]
+                                for i in range(len(response_words)-2)]
                 found_phrases = [phrase for phrase in response_phrases 
-                               if phrase in context.lower()]
+                             if phrase in context.lower()]
                 context_score = len(found_phrases) / len(response_phrases) if response_phrases else 0
             
             # Overall validation
             is_valid = all([
-                has_attribution,
                 hallucination_risk < 0.2,
                 uncertainty_score < 0.2,
                 is_appropriate_length,
@@ -99,7 +89,6 @@ class ResponseValidator:
             
             return {
                 "is_valid": is_valid,
-                "attribution": {"has_attribution": has_attribution},
                 "hallucination_risk": {
                     "score": hallucination_risk,
                     "phrases": found_hallucination_phrases,
