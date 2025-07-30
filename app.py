@@ -258,7 +258,7 @@ def create_qa_chain(openai_api_key, cohere_api_key):
             allow_dangerous_deserialization=True  # Allow since this is our own trusted index
         )
         validator = ResponseValidator()
-        reranker = DocumentReranker()
+        reranker = DocumentReranker(api_key=cohere_api_key)  # Pass the API key
         
         # Create enhanced retriever with exact notebook parameters
         retriever = EnhancedRetriever(
